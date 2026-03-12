@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block page_title %}Post Announcement{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-7">
+    <div class="card">
+      <div class="card-header"><i class="fas fa-bullhorn me-2"></i>Post Announcement — {{ course.name }}</div>
+      <div class="card-body">
+        <form method="post">
+          {% csrf_token %}
+          <div class="mb-3"><label class="form-label">Title</label>{{ form.title }}</div>
+          <div class="mb-3"><label class="form-label">Content</label>{{ form.content }}</div>
+          <button type="submit" class="btn btn-primary"><i class="fas fa-paper-plane me-2"></i>Post</button>
+          <a href="{% url 'course_detail' course.pk %}" class="btn btn-outline-secondary ms-2">Cancel</a>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+{% block page_title %}{{ course.name }}{% endblock %}
+{% block content %}
+<div class="breadcrumb-bar mb-3">
+  <a href="{% url 'course_list' %}">Courses</a> <i class="fas fa-chevron-right" style="font-size:10px;"></i> <span>{{ course.code }}</span>
+</div>
+<div style="background:linear-gradient(135deg,#1a3a6b,#2255a4);border-radius:14px;padding:28px;color:white;margin-bottom:24px;">
+  <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+    <div>
+      <span style="font-size:11px;background:rgba(255,255,255,0.2);padding:3px 10px;border-radius:20px;margin-bottom:10px;display:inline-block;">{{ course.code }}</span>
+      <h2 style="font-weight:800;margin:8px 0 6px;">{{ course.name }}</h2>
+      <p style="opacity:0.8;margin:0;font-size:14px;">{{ course.description }}</p>
+      <div style="margin-top:14px;display:flex;gap:20px;font-size:13px;">
+        <span><i class="fas fa-building me-1"></i>{{ course.department.name }}</span>
+        <span><i class="fas fa-star me-1"></i>{{ course.credits }} Credits</span>
+        <span><i class="fas fa-users me-1"></i>{{ course.enrolled_count }}/{{ course.max_students }} Enrolled</span>
+        {% if course.schedule %}<span><i class="fas fa-clock me-1"></i>{{ course.schedule }}</span>{% endif %}
+      </div>
+    </div>
+    {% if user.is_super_admin or user.is_sub_admin %}
+    <div class="d-flex gap-2 flex-wrap">
+      <a href="{% url 'edit_course' course.pk %}" class="btn btn-sm" style="background:rgba(255,255,255,0.2);color:white;border:1px solid rgba(255,255,255,0.3);"><i class="fas fa-edit me-1"></i>Edit</a>
+      <a href="{% url 'course_grades' course.pk %}" class="btn btn-sm" style="background:var(--accent);color:white;border:none;"><i class="fas fa-chart-bar me-1"></i>Grades</a>
+      <a href="{% url 'attendance_view' course.pk %}" class="btn btn-sm" style="background:rgba(255,255,255,0.15);color:white;border:1px solid rgba(255,255,255,0.3);"><i class="fas fa-clipboard-check me-1"></i>Attendance</a>
+    </div>
+    {% elif user.is_student and not is_enrolled %}
+    <form method="post" action="{% url 'enroll_student' course.pk %}">
+      {% csrf_token %}
+      <button type="submit" style="background:var(--accent);color:white;border:none;padding:10px 20px;border-radius:8px;font-weight:600;cursor:pointer;">Enroll Now</button>
+    </form>
+    {% elif is_enrolled %}
+    <span style="background:rgba(15,158,110,0.3);color:#a7f3d0;padding:8px 16px;border-radius:20px;font-size:13px;font-weight:600;">✓ Enrolled</span>
+    {% endif %}
+  </div>
+</div>
+
+<div class="row g-3">
+  <div class="col-md-8">
+    {% if course.syllabus %}
+    <div class="card mb-3">
+      <div class="card-header"><i class="fas fa-file-alt me-2"></i>Syllabus</div>
+      <div class="card-body" style="font-size:14px;line-height:1.7;white-space:pre-wrap;">{{ course.syllabus }}</div>
+    </div>
+    {% endif %}
+    <div class="card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span><i class="fas fa-bullhorn me-2"></i>Announcements</span>
+        {% if user.is_super_admin or user.is_sub_admin %}
+        <a href="{% url 'post_announcement' course.pk %}" class="btn btn-sm btn-primary">+ Post</a>
+        {% endif %}
+      </div>
+      <div class="card-body">
+        {% for ann in announcements %}
+        <div class="announcement-item">
+          <h6>{{ ann.title }}</h6>
+          <p style="font-size:14px;color:#4a5568;">{{ ann.content }}</p>
+          <small class="text-muted">{{ ann.created_by.get_full_name }} · {{ ann.created_at|timesince }} ago</small>
+        </div>
+        {% empty %}
+        <p class="text-muted text-center py-2">No announcements yet</p>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    {% if user.is_super_admin or user.is_sub_admin %}
+    <div class="card mb-3">
+      <div class="card-header"><i class="fas fa-users me-2"></i>Enrolled Students ({{ course.enrolled_count }})</div>
+      <div class="card-body p-0" style="max-height:300px;overflow-y:auto;">
+        {% for enrollment in enrollments %}
+        <div style="padding:10px 16px;border-bottom:1px solid var(--border-color);display:flex;align-items:center;gap:10px;">
+          <div style="width:32px;height:32px;border-radius:50%;background:var(--primary);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:white;flex-shrink:0;">{{ enrollment.student.first_name|first|upper }}</div>
+          <div>
+            <div style="font-size:13px;font-weight:600;">{{ enrollment.student.get_full_name }}</div>
+            <div style="font-size:11px;color:var(--text-muted);">{{ enrollment.student.student_id|default:enrollment.student.username }}</div>
+          </div>
+        </div>
+        {% empty %}
+        <p class="text-muted text-center py-3">No students enrolled</p>
+        {% endfor %}
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header"><i class="fas fa-user-plus me-2"></i>Enroll Student</div>
+      <div class="card-body">
+        <form method="post" action="{% url 'enroll_student' course.pk %}">
+          {% csrf_token %}
+          <select name="student_id" class="form-select mb-2">
+            <option value="">Select student...</option>
+            {% for s in all_students %}<option value="{{ s.pk }}">{{ s.get_full_name }} ({{ s.student_id|default:s.username }})</option>{% endfor %}
+          </select>
+          <button type="submit" class="btn btn-primary btn-sm w-100">Enroll</button>
+        </form>
+      </div>
+    </div>
+    {% endif %}
+    <div class="card mt-3">
+      <div class="card-header"><i class="fas fa-info-circle me-2"></i>Course Info</div>
+      <div class="card-body">
+        <table style="width:100%;font-size:13px;">
+          <tr><td style="padding:6px 0;color:var(--text-muted);">Instructor</td><td style="font-weight:600;">{{ course.instructor.get_full_name|default:"TBA" }}</td></tr>
+          <tr><td style="padding:6px 0;color:var(--text-muted);">Semester</td><td>{{ course.semester|default:"N/A" }}</td></tr>
+          <tr><td style="padding:6px 0;color:var(--text-muted);">Credits</td><td>{{ course.credits }}</td></tr>
+          <tr><td style="padding:6px 0;color:var(--text-muted);">Max Students</td><td>{{ course.max_students }}</td></tr>
+          <tr><td style="padding:6px 0;color:var(--text-muted);">Status</td><td><span class="badge-status badge-{{ course.status }}">{{ course.status|title }}</span></td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

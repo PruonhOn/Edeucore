@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% block page_title %}Enrollment Report{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h4 style="font-weight:700;margin:0;">Enrollment Report</h4>
+  <a href="{% url 'reports_dashboard' %}" class="btn btn-outline-secondary btn-sm">← Back</a>
+</div>
+<div class="card">
+  <div class="card-body p-0">
+    <table class="table-modern" style="width:100%">
+      <thead><tr><th>Course</th><th>Department</th><th>Semester</th><th>Enrolled</th><th>Capacity</th><th>Fill Rate</th></tr></thead>
+      <tbody>
+        {% for course in courses %}
+        <tr>
+          <td><strong>{{ course.code }}</strong><br><small>{{ course.name }}</small></td>
+          <td>{{ course.department.name }}</td>
+          <td>{{ course.semester|default:"N/A" }}</td>
+          <td><strong>{{ course.enrollment_count }}</strong></td>
+          <td>{{ course.max_students }}</td>
+          <td>
+            <div class="d-flex align-items-center gap-2">
+              <div class="progress" style="width:80px;height:6px;">
+                <div class="progress-bar" style="background:var(--primary);width:{% if course.max_students > 0 %}{% widthratio course.enrollment_count course.max_students 100 %}{% else %}0{% endif %}%"></div>
+              </div>
+              <span style="font-size:12px;">{% if course.max_students > 0 %}{% widthratio course.enrollment_count course.max_students 100 %}%{% else %}0%{% endif %}</span>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

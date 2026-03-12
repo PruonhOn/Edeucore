@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% block page_title %}Semester Results{% endblock %}
+{% block content %}
+<div class="breadcrumb-bar mb-3">
+  <a href="{% url 'grade_list' %}">Grades</a> <i class="fas fa-chevron-right" style="font-size:10px;"></i>
+  <a href="{% url 'course_grades' course.pk %}">{{ course.code }}</a> <i class="fas fa-chevron-right" style="font-size:10px;"></i> Results
+</div>
+<div class="card">
+  <div class="card-header d-flex justify-content-between">
+    <span><i class="fas fa-trophy me-2 text-warning"></i>Semester Results — {{ course.name }}</span>
+    <div>
+      <form method="post" action="{% url 'publish_results' course.pk %}" style="display:inline;">
+        {% csrf_token %}
+        <button class="btn btn-sm btn-success" onclick="return confirm('Publish to students?')"><i class="fas fa-paper-plane me-1"></i>Publish All</button>
+      </form>
+    </div>
+  </div>
+  <div class="card-body p-0">
+    <table class="table-modern" style="width:100%">
+      <thead><tr><th>Student</th><th>Score</th><th>Grade</th><th>GPA</th><th>Status</th><th>Remarks</th></tr></thead>
+      <tbody>
+        {% for result in results %}
+        <tr>
+          <td>
+            <strong>{{ result.student.get_full_name }}</strong>
+            <br><small class="text-muted">{{ result.student.student_id|default:result.student.username }}</small>
+          </td>
+          <td>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span style="font-weight:700;font-size:15px;">{{ result.total_score }}%</span>
+              <div class="progress" style="width:60px;height:6px;"><div class="progress-bar" style="width:{{ result.total_score }}%;background:{% if result.total_score >= 80 %}var(--success){% elif result.total_score >= 60 %}var(--warning){% else %}var(--danger){% endif %}"></div></div>
+            </div>
+          </td>
+          <td><span style="font-size:22px;font-weight:900;" class="grade-{{ result.letter_grade|slice:':1' }}">{{ result.letter_grade }}</span></td>
+          <td style="font-weight:700;">{{ result.gpa_points }}</td>
+          <td><span class="badge-status {% if result.published %}badge-active{% else %}badge-inactive{% endif %}">{% if result.published %}Published{% else %}Draft{% endif %}</span></td>
+          <td style="font-size:13px;">{{ result.remarks|default:"-" }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6" class="text-center py-4 text-muted">No results generated yet. <a href="{% url 'generate_results' course.pk %}">Generate now</a></td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block page_title %}Add Assessment{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-header"><i class="fas fa-plus me-2"></i>Add Assessment — {{ course.code }}</div>
+      <div class="card-body">
+        <form method="post">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label class="form-label">Assessment Name *</label>
+            <input type="text" name="name" class="form-control" placeholder="e.g. Midterm Exam" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Category</label>
+            <select name="category_id" class="form-select" id="cat-select">
+              <option value="">Create New Category</option>
+              {% for cat in categories %}<option value="{{ cat.pk }}">{{ cat.name }} ({{ cat.weight }}%)</option>{% endfor %}
+            </select>
+          </div>
+          <div id="new-cat" class="row g-2 mb-3">
+            <div class="col-8">
+              <label class="form-label">New Category Name</label>
+              <input type="text" name="category_name" class="form-control" placeholder="e.g. Midterm">
+            </div>
+            <div class="col-4">
+              <label class="form-label">Weight (%)</label>
+              <input type="number" name="category_weight" class="form-control" min="0" max="100" placeholder="30">
+            </div>
+          </div>
+          <div class="row g-2 mb-3">
+            <div class="col">
+              <label class="form-label">Max Score</label>
+              <input type="number" name="max_score" class="form-control" value="100" min="1">
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Description</label>
+            <textarea name="description" class="form-control" rows="2"></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary"><i class="fas fa-save me-2"></i>Add Assessment</button>
+          <a href="{% url 'course_grades' course.pk %}" class="btn btn-outline-secondary ms-2">Cancel</a>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+document.getElementById('cat-select').addEventListener('change', function() {
+  document.getElementById('new-cat').style.display = this.value ? 'none' : 'flex';
+});
+</script>
+{% endblock %}

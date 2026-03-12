@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block page_title %}Import Students{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-7">
+    <div class="card">
+      <div class="card-header"><i class="fas fa-file-import me-2"></i>Import Students from CSV</div>
+      <div class="card-body">
+        <div class="alert alert-info">
+          <i class="fas fa-info-circle me-2"></i>
+          CSV must have headers: <code>username, first_name, last_name, email, department, student_id</code>
+          <br>Default password will be <code>School@123</code>
+        </div>
+        <form method="post" enctype="multipart/form-data">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label class="form-label">CSV File</label>
+            <input type="file" name="file" accept=".csv" class="form-control" required>
+          </div>
+          <button type="submit" class="btn btn-primary"><i class="fas fa-upload me-2"></i>Import</button>
+          <a href="{% url 'reports_dashboard' %}" class="btn btn-outline-secondary ms-2">Cancel</a>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

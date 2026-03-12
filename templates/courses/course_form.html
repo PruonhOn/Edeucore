@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block page_title %}{{ title }}{% endblock %}
+{% block content %}
+<div class="breadcrumb-bar mb-3">
+  <a href="{% url 'course_list' %}">Courses</a> <i class="fas fa-chevron-right" style="font-size:10px;"></i> <span>{{ title }}</span>
+</div>
+<div class="row justify-content-center">
+  <div class="col-md-9">
+    <div class="card">
+      <div class="card-header"><i class="fas fa-book-open me-2"></i>{{ title }}</div>
+      <div class="card-body">
+        <form method="post">
+          {% csrf_token %}
+          <div class="row g-3">
+            <div class="col-md-8"><label class="form-label">Course Name *</label>{{ form.name }}</div>
+            <div class="col-md-4"><label class="form-label">Course Code *</label>{{ form.code }}</div>
+            <div class="col-12"><label class="form-label">Description</label>{{ form.description }}</div>
+            <div class="col-md-4"><label class="form-label">Credits</label>{{ form.credits }}</div>
+            <div class="col-md-4"><label class="form-label">Max Students</label>{{ form.max_students }}</div>
+            <div class="col-md-4"><label class="form-label">Status</label>{{ form.status }}</div>
+            <div class="col-md-6"><label class="form-label">Department</label>{{ form.department }}</div>
+            <div class="col-md-6"><label class="form-label">Instructor</label>{{ form.instructor }}</div>
+            <div class="col-md-6"><label class="form-label">Semester</label>{{ form.semester }}</div>
+            <div class="col-md-6"><label class="form-label">Schedule</label>{{ form.schedule }}</div>
+            <div class="col-12"><label class="form-label">Syllabus</label>{{ form.syllabus }}</div>
+          </div>
+          {% if form.errors %}
+          <div class="alert alert-danger mt-3">
+            {% for field, errors in form.errors.items %}{% for error in errors %}{{ error }}<br>{% endfor %}{% endfor %}
+          </div>
+          {% endif %}
+          <div class="mt-4 d-flex gap-2">
+            <button type="submit" class="btn btn-primary px-4"><i class="fas fa-save me-2"></i>Save Course</button>
+            <a href="{% url 'course_list' %}" class="btn btn-outline-secondary">Cancel</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

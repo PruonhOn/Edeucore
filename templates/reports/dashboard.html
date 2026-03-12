@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% block page_title %}Reports & Analytics{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h4 style="font-weight:700;margin:0;">Reports & Analytics</h4>
+  <div class="d-flex gap-2">
+    <a href="{% url 'export_students_excel' %}" class="btn btn-success btn-sm"><i class="fas fa-file-excel me-1"></i>Export Students</a>
+    <a href="{% url 'export_grades_excel' %}" class="btn btn-success btn-sm"><i class="fas fa-file-excel me-1"></i>Export Grades</a>
+    <a href="{% url 'import_students' %}" class="btn btn-outline-primary btn-sm"><i class="fas fa-file-import me-1"></i>Import</a>
+  </div>
+</div>
+<div class="row g-3 mb-4">
+  <div class="col-md-3"><div class="stat-card stat-blue"><div class="icon"><i class="fas fa-users"></i></div><h3>{{ total_students }}</h3><p>Total Students</p></div></div>
+  <div class="col-md-3"><div class="stat-card stat-gold"><div class="icon"><i class="fas fa-book-open"></i></div><h3>{{ total_courses }}</h3><p>Total Courses</p></div></div>
+  <div class="col-md-3"><div class="stat-card stat-green"><div class="icon"><i class="fas fa-building"></i></div><h3>{{ total_departments }}</h3><p>Departments</p></div></div>
+  <div class="col-md-3"><div class="stat-card stat-purple"><div class="icon"><i class="fas fa-user-shield"></i></div><h3>{{ total_admins }}</h3><p>Admins</p></div></div>
+</div>
+<div class="row g-3">
+  <div class="col-md-8">
+    <div class="card">
+      <div class="card-header"><i class="fas fa-building me-2"></i>Department Statistics</div>
+      <div class="card-body p-0">
+        <table class="table-modern" style="width:100%">
+          <thead><tr><th>Department</th><th>Code</th><th>Students</th><th>Courses</th><th>Utilization</th></tr></thead>
+          <tbody>
+            {% for dept in departments %}
+            <tr>
+              <td><strong>{{ dept.name }}</strong></td>
+              <td><span class="badge-status badge-admin">{{ dept.code }}</span></td>
+              <td>{{ dept.student_count }}</td>
+              <td>{{ dept.course_count }}</td>
+              <td>
+                <div class="d-flex align-items-center gap-2">
+                  <div class="progress flex-grow-1" style="height:6px;">
+                    <div class="progress-bar" style="background:var(--primary);width:{% if dept.student_count > 0 %}{% widthratio dept.student_count total_students 100 %}{% else %}0{% endif %}%"></div>
+                  </div>
+                  <span style="font-size:12px;color:var(--text-muted);">{% if total_students > 0 %}{% widthratio dept.student_count total_students 100 %}%{% else %}0%{% endif %}</span>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card">
+      <div class="card-header"><i class="fas fa-download me-2"></i>Export Reports</div>
+      <div class="card-body d-grid gap-2">
+        <a href="{% url 'export_students_excel' %}" class="btn btn-outline-success"><i class="fas fa-file-excel me-2"></i>Students (Excel)</a>
+        <a href="{% url 'export_students_csv' %}" class="btn btn-outline-secondary"><i class="fas fa-file-csv me-2"></i>Students (CSV)</a>
+        <a href="{% url 'export_grades_excel' %}" class="btn btn-outline-success"><i class="fas fa-file-excel me-2"></i>Grades (Excel)</a>
+        <a href="{% url 'enrollment_report' %}" class="btn btn-outline-primary"><i class="fas fa-chart-bar me-2"></i>Enrollment Report</a>
+        <a href="{% url 'gpa_report' %}" class="btn btn-outline-primary"><i class="fas fa-graduation-cap me-2"></i>GPA Report</a>
+        <a href="{% url 'import_students' %}" class="btn btn-outline-warning"><i class="fas fa-file-import me-2"></i>Import Students</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

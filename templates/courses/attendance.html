@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block page_title %}Attendance — {{ course.code }}{% endblock %}
+{% block content %}
+<div class="breadcrumb-bar mb-3">
+  <a href="{% url 'course_list' %}">Courses</a> <i class="fas fa-chevron-right" style="font-size:10px;"></i>
+  <a href="{% url 'course_detail' course.pk %}">{{ course.code }}</a> <i class="fas fa-chevron-right" style="font-size:10px;"></i> Attendance
+</div>
+<div class="card mb-3">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <span><i class="fas fa-clipboard-check me-2"></i>Mark Attendance</span>
+  </div>
+  <div class="card-body">
+    <form method="post" action="{% url 'save_attendance' course.pk %}">
+      {% csrf_token %}
+      <div class="row g-2 mb-3">
+        <div class="col-md-3">
+          <label class="form-label">Date</label>
+          <input type="date" name="date" class="form-control" required>
+        </div>
+      </div>
+      <table class="table-modern" style="width:100%">
+        <thead><tr><th>Student</th><th>Present</th><th>Absent</th><th>Late</th><th>Excused</th></tr></thead>
+        <tbody>
+          {% for enrollment in students %}
+          <tr>
+            <td>{{ enrollment.student.get_full_name }} <small class="text-muted">({{ enrollment.student.student_id|default:enrollment.student.username }})</small></td>
+            {% for status, label in enrollment.student.GENDER_CHOICES|default:"" %}{% endfor %}
+            <td><input type="radio" name="status_{{ enrollment.student.pk }}" value="present" checked></td>
+            <td><input type="radio" name="status_{{ enrollment.student.pk }}" value="absent"></td>
+            <td><input type="radio" name="status_{{ enrollment.student.pk }}" value="late"></td>
+            <td><input type="radio" name="status_{{ enrollment.student.pk }}" value="excused"></td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="5" class="text-center text-muted py-3">No students enrolled</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% if students %}<button type="submit" class="btn btn-primary mt-3"><i class="fas fa-save me-2"></i>Save Attendance</button>{% endif %}
+    </form>
+  </div>
+</div>
+{% endblock %}
